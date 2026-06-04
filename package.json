@@ -1,0 +1,28 @@
+{
+  "name": "splitem-expo",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "doctor": "npx expo-doctor",
+    "build:ios": "eas build --platform ios",
+    "submit:ios": "eas submit --platform ios"
+  },
+  "dependencies": {
+    "expo": "^54.0.35",
+    "expo-media-library": "~18.2.1",
+    "expo-speech": "~14.0.8",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-view-shot": "4.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "babel-preset-expo": "~54.0.10"
+  }
+}
