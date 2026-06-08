@@ -81,10 +81,75 @@ const assets = {
     require("./assets/legs13.png"),
     require("./assets/legs14.png"),
     require("./assets/legs15.png")
+  ],
+  dressPeople: [
+    require("./SplitClothes/processed/Boy1.png"),
+    require("./SplitClothes/processed/Boy2.png"),
+    require("./SplitClothes/processed/Boy3.png"),
+    require("./SplitClothes/processed/Girl1.png"),
+    require("./SplitClothes/processed/Girl2.png"),
+    require("./SplitClothes/processed/Girl3.png")
+  ],
+  dressHats: [
+    require("./SplitClothes/processed/Hat1.png"),
+    require("./SplitClothes/processed/Hat2.png"),
+    require("./SplitClothes/processed/Hat3.png"),
+    require("./SplitClothes/processed/Hat4.png"),
+    require("./SplitClothes/processed/Hat5.png"),
+    require("./SplitClothes/processed/Hat6.png"),
+    require("./SplitClothes/processed/Hat7.png"),
+    require("./SplitClothes/processed/Hat8.png"),
+    require("./SplitClothes/processed/Hat9.png"),
+    require("./SplitClothes/processed/Hat10.png")
+  ],
+  dressShirts: [
+    require("./SplitClothes/processed/Shirt11.png"),
+    require("./SplitClothes/processed/Shirt12.png"),
+    require("./SplitClothes/processed/Shirt13.png"),
+    require("./SplitClothes/processed/Shirt14.png"),
+    require("./SplitClothes/processed/Shirt15.png"),
+    require("./SplitClothes/processed/Shirt16.png"),
+    require("./SplitClothes/processed/Shirt17.png"),
+    require("./SplitClothes/processed/Shirt18.png"),
+    require("./SplitClothes/processed/Shirt19.png"),
+    require("./SplitClothes/processed/Shirt206.png"),
+    require("./SplitClothes/processed/Shirt201.png"),
+    require("./SplitClothes/processed/Shirt20.png")
+  ],
+  dressTrousers: [
+    require("./SplitClothes/processed/Trousers1.png"),
+    require("./SplitClothes/processed/Trousers2.png"),
+    require("./SplitClothes/processed/Trousers3.png"),
+    require("./SplitClothes/processed/Trousers4.png"),
+    require("./SplitClothes/processed/Trousers5.png"),
+    require("./SplitClothes/processed/Trousers6.png"),
+    require("./SplitClothes/processed/Trousers7.png"),
+    require("./SplitClothes/processed/Trousers8.png"),
+    require("./SplitClothes/processed/Trousers9.png"),
+    require("./SplitClothes/processed/Trousers10.png")
+  ],
+  dressShoes: [
+    require("./SplitClothes/processed/Shoes1.png"),
+    require("./SplitClothes/processed/Shoes12.png"),
+    require("./SplitClothes/processed/Shoes13.png"),
+    require("./SplitClothes/processed/Shoes14.png"),
+    require("./SplitClothes/processed/Shoes15.png"),
+    require("./SplitClothes/processed/Shoes16.png"),
+    require("./SplitClothes/processed/Shoes17.png"),
+    require("./SplitClothes/processed/Shoes18.png"),
+    require("./SplitClothes/processed/Shoes19.png"),
+    require("./SplitClothes/processed/Shoes20.png")
   ]
 };
 
 const CANVAS = { width: 320, height: 480 };
+const DRESS_FRAMES = {
+  person: { x: 35, y: 56, width: 250, height: 374 },
+  hat: { x: 91, y: 18, width: 138, height: 84 },
+  shirt: { x: 51, y: 194, width: 217, height: 145 },
+  trousers: { x: 69, y: 274, width: 180, height: 148 },
+  shoes: { x: 20, y: 372, width: 280, height: 70 }
+};
 
 const headNameParts = [
   { title: "Diver", openers: ["Bubble", "Deep-Sea", "Captain"], roots: ["Splash", "Helmet", "Flipper"] },
@@ -175,20 +240,46 @@ function speechSettingsForMode(mode, selectedVoice) {
   };
 }
 
+function useSaveToPhotos(shotRef, label) {
+  return useCallback(async () => {
+    const permission = await MediaLibrary.requestPermissionsAsync(true);
+    if (!permission.granted) {
+      Alert.alert("Photos permission needed", "Allow photo access to save your Splitem image.");
+      return;
+    }
+
+    const uri = await shotRef.current?.capture?.();
+    if (!uri) {
+      Alert.alert("Save failed", "The image was not ready to save.");
+      return;
+    }
+
+    await MediaLibrary.saveToLibraryAsync(uri);
+    Alert.alert("Saved", `Your ${label} image has been saved to Photos.`);
+  }, [label, shotRef]);
+}
+
 export default function App() {
   const [screen, setScreen] = useState("menu");
 
   return (
     <View style={styles.app}>
       <StatusBar hidden />
-      {screen === "menu" && <MenuScreen onPlay={() => setScreen("play")} onAbout={() => setScreen("about")} />}
+      {screen === "menu" && (
+        <MenuScreen
+          onPlay={() => setScreen("play")}
+          onDress={() => setScreen("dress")}
+          onAbout={() => setScreen("about")}
+        />
+      )}
       {screen === "about" && <AboutScreen onClose={() => setScreen("menu")} />}
       {screen === "play" && <PlayScreen onClose={() => setScreen("menu")} />}
+      {screen === "dress" && <DressEmScreen onClose={() => setScreen("menu")} />}
     </View>
   );
 }
 
-function MenuScreen({ onPlay, onAbout }) {
+function MenuScreen({ onPlay, onDress, onAbout }) {
   const { width, height } = useWindowDimensions();
   const logoWidth = Math.min(width - 32, height * 0.55 * (784 / 1168));
 
@@ -209,7 +300,8 @@ function MenuScreen({ onPlay, onAbout }) {
           />
         </View>
         <View style={styles.homeButtons}>
-          <HomeButton title="Play" onPress={onPlay} primary />
+          <HomeButton title="Split-em" onPress={onPlay} primary />
+          <HomeButton title="Dress-Em" onPress={onDress} />
           <HomeButton title="About" onPress={onAbout} />
         </View>
       </SafeAreaView>
@@ -255,6 +347,7 @@ function PlayScreen({ onClose }) {
     Speech.stop();
     Speech.speak(`My name is ${characterName}`, speechSettingsForMode(voiceMode, selectedVoice));
   }, [characterName, selectedVoice, voiceMode]);
+  const saveImage = useSaveToPhotos(shotRef, "Splitem");
 
   useEffect(() => {
     let mounted = true;
@@ -274,23 +367,6 @@ function PlayScreen({ onClose }) {
       mounted = false;
       Speech.stop();
     };
-  }, []);
-
-  const saveImage = useCallback(async () => {
-    const permission = await MediaLibrary.requestPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("Photos permission needed", "Allow photo access to save your Splitem image.");
-      return;
-    }
-
-    const uri = await shotRef.current?.capture?.();
-    if (!uri) {
-      Alert.alert("Save failed", "The image was not ready to save.");
-      return;
-    }
-
-    await MediaLibrary.saveToLibraryAsync(uri);
-    Alert.alert("Saved", "Your Splitem image has been saved to Photos.");
   }, []);
 
   return (
@@ -341,7 +417,57 @@ function PlayScreen({ onClose }) {
   );
 }
 
-function LayerPager({ images, frame, scale, onIndexChange }) {
+function DressEmScreen({ onClose }) {
+  const shotRef = useRef(null);
+  const { width, height } = useWindowDimensions();
+  const saveImage = useSaveToPhotos(shotRef, "Dress-Em");
+  const canvasSize = useMemo(() => {
+    const scale = Math.min(width / CANVAS.width, height / CANVAS.height);
+    return {
+      width: CANVAS.width * scale,
+      height: CANVAS.height * scale,
+      scale
+    };
+  }, [height, width]);
+
+  return (
+    <View style={styles.playScreen}>
+      <ViewShot ref={shotRef} options={{ format: "png", quality: 1 }} style={[styles.canvas, styles.dressCanvas, canvasSize]}>
+        <View style={[styles.dressPaper, { width: canvasSize.width, height: canvasSize.height }]} />
+        <LayerPager
+          images={assets.dressPeople}
+          frame={DRESS_FRAMES.person}
+          scale={canvasSize.scale}
+          resizeMode="contain"
+        />
+        <LayerPager
+          images={assets.dressTrousers}
+          frame={DRESS_FRAMES.trousers}
+          scale={canvasSize.scale}
+          resizeMode="contain"
+        />
+        <LayerPager
+          images={assets.dressShirts}
+          frame={DRESS_FRAMES.shirt}
+          scale={canvasSize.scale}
+          resizeMode="contain"
+        />
+        <LayerPager images={assets.dressShoes} frame={DRESS_FRAMES.shoes} scale={canvasSize.scale} resizeMode="contain" />
+        <LayerPager images={assets.dressHats} frame={DRESS_FRAMES.hat} scale={canvasSize.scale} resizeMode="contain" />
+      </ViewShot>
+
+      <SafeAreaView pointerEvents="box-none" style={styles.controls}>
+        <ImageButton source={assets.menu} label="Menu" onPress={onClose} />
+        <View pointerEvents="none" style={styles.screenBadge}>
+          <Text style={styles.screenBadgeText}>Dress-Em</Text>
+        </View>
+        <ImageButton source={assets.camera} label="Save to Photos" onPress={saveImage} />
+      </SafeAreaView>
+    </View>
+  );
+}
+
+function LayerPager({ images, frame, scale, onIndexChange, resizeMode = "stretch" }) {
   const ref = useRef(null);
   const loopingImages = useMemo(() => [images[images.length - 1], ...images, images[0]], [images]);
   const width = frame.width * scale;
@@ -389,7 +515,7 @@ function LayerPager({ images, frame, scale, onIndexChange }) {
       ]}
     >
       {loopingImages.map((image, index) => (
-        <Image key={index} source={image} resizeMode="stretch" style={{ width, height }} />
+        <Image key={index} source={image} resizeMode={resizeMode} style={{ width, height }} />
       ))}
     </ScrollView>
   );
@@ -515,6 +641,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#000"
   },
+  dressCanvas: {
+    backgroundColor: "#F8EAA2"
+  },
+  dressPaper: {
+    position: "absolute",
+    backgroundColor: "#F8EAA2"
+  },
   layer: {
     position: "absolute",
     overflow: "hidden"
@@ -551,6 +684,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16
+  },
+  screenBadge: {
+    minWidth: 150,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 3,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    borderColor: "#FDD23E",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.22,
+    shadowRadius: 4
+  },
+  screenBadgeText: {
+    color: "#E85B42",
+    fontSize: 22,
+    fontWeight: "900",
+    letterSpacing: 0
   },
   nameArea: {
     flex: 1,
